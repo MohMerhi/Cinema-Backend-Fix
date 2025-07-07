@@ -20,6 +20,6 @@ else if(Customer::find($mysqli, $_POST["id"]) == null){
 }
 else{
     $customer = new Customer($_POST);
-    $customer->update($mysqli,$_POST[" "])
+    $customer->update($mysqli,$_POST,(int)$_POST["id"]);
 }
 

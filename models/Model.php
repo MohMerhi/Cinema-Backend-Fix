@@ -32,20 +32,17 @@ abstract class Model{
 
         $objects = [];
         while($row = $data->fetch_assoc()){
-            $objects[] = new static($row); //creating an object of type "static" / "parent" and adding the object to the array
+            $objects[] = new static($row); 
         }
 
-        return $objects; //we are returning an array of objects!!!!!!!!
+        return $objects; 
     }
 
     public static function create(mysqli $mysqli, array $values){
         $column_names = array_keys($values);
         
         $column_values = array_values($values);
-        // for($i = 0; $i < sizeof($column_values); $i++);{
-        //         $column_values[$i] = 1;
-        // }
-        var_dump($column_values);
+       
         $column_names = implode(",",$column_names);
         $valuesToBind = array_fill(0,sizeof($column_values), '?');
         $valuesToBind = implode(",", $valuesToBind);
@@ -73,7 +70,8 @@ abstract class Model{
         $query = $mysqli->prepare($sql);
         $bindingDatatypes = static::prepareForBinding($column_values);
         $bindingDatatypes .= "i";
-        $valuesToBind[] = $id;
+        $column_values[] = $id;
+
         $query->bind_param($bindingDatatypes, ...$column_values);
         $query->execute();
     }
@@ -110,12 +108,53 @@ abstract class Model{
         return $datatypes;
     }
 
-    //you have to continue with the same mindset
-    //Find a solution for sending the $mysqli everytime... 
-    //Implement the following: 
-    //1- update() -> non-static function 
-    //2- create() -> static function
-    //3- delete() -> static function 
+
+    //-------------------------------------------------------------------------------------
+
+    public static function findByValues(mysqli $mysqli, array $values){
+        $types = "";
+        $params = [];
+        $valuesInQuery = static::sqlValueForm($values," and ");
+        $sql = sprintf("Select * from %s where %s",static::$table, $valuesInQuery);
+        
+        $query= $mysqli->prepare($sql);
+        static::bindToQuery($values, $types, $params);
+        $query->bind_param($types,...$params);
+        $query->execute();
+        $data = $query->get_result();
+        $objects = [];
+        while($row = $data->fetch_assoc()){
+            $objects[] = new static($row);
+        }
+        return $objects;
+    }
+
+     public static function sqlValueForm(&$values, $separateString){
+        $normalArray = [];
+        foreach($values as $key => $value){
+            $normalArray[] = $key." = ?";
+        }
+        return implode($separateString,$normalArray);
+    }
+
+    public static function bindToQuery(&$values, &$type, &$params){
+        $type = "";
+        $params = [];
+        foreach($values as $key => $value){
+            if(is_int($value)){
+                $type = $type. 'i';
+
+            }
+            else if(is_float($value)){
+                $type = $type. 'f';
+            }
+            else{
+                $type = $type. 's';
+            }
+            $params[] = $value;
+        } 
+    }
+
 }
 
 

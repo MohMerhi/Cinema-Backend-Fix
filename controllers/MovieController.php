@@ -66,18 +66,17 @@ class MovieController extends BaseController{
             $this->deleteMovieById();
         }
         else{
-            echo json_encode(["all"]);
             $this->deleteAllMovies();
         }
     }
 
     public function deleteMovieById(){
-        $movie = Movie::find($this->mysqli, $_GET["id"]);
+        $movie = Movie::find($this->mysqli, $_POST["id"]);
         if($movie == null){
-            echo ResponseService::not_found($_GET["id"]);
+            echo ResponseService::not_found($_POST["id"]);
             return;
         }
-        Movie::delete($this->mysqli, $_GET["id"]);
+        Movie::delete($this->mysqli, (int)$_POST["id"]);
         echo ResponseService::no_response();
     }
 
