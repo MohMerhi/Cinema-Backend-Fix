@@ -20,7 +20,9 @@ function routes()
 
 
     $apis = [
-        '/movies' => ['controller' => 'MovieController', 'method' => 'HandleMovieRequest']
+        '/movies' => ['controller' => 'MovieController', 'method' => 'HandleMovieGetAndPost'],
+        '/movies/update' => ['controller' => 'MovieController', 'method' => 'updateMovie'],
+        '/movies/delete' => ['controller' => 'MovieController', 'method' => 'deleteMovie']
 
     ];
 

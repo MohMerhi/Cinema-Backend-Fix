@@ -15,6 +15,8 @@ class Movie extends Model{
 
     protected static string $table = "movies";
 
+    protected static string $primary_key = "id";
+
     public function __construct(array $data){
         $this->id = $data["id"];
         $this->title = $data["title"];

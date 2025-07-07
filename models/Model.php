@@ -12,7 +12,7 @@ abstract class Model{
         $query = $mysqli->prepare($sql);
         $query->bind_param("i", $id);
         $query->execute();
-
+        
         $data = $query->get_result();
         $objects = [];
         while($row = $data->fetch_assoc()){
@@ -40,14 +40,21 @@ abstract class Model{
 
     public static function create(mysqli $mysqli, array $values){
         $column_names = array_keys($values);
+        
         $column_values = array_values($values);
+        // for($i = 0; $i < sizeof($column_values); $i++);{
+        //         $column_values[$i] = 1;
+        // }
+        var_dump($column_values);
         $column_names = implode(",",$column_names);
-        $valuesToBind = str_repeat('?',sizeof($column_values));
-        $valuesToBind = implode(",", $values);
+        $valuesToBind = array_fill(0,sizeof($column_values), '?');
+        $valuesToBind = implode(",", $valuesToBind);
         $sql = sprintf("INSERT INTO %s (%s) VALUES (%s)", static::$table, $column_names, $valuesToBind);
+        
         $bindingDatatypes = static::prepareForBinding($column_values);
         $query = $mysqli->prepare($sql);
         $query->bind_param($bindingDatatypes, ...$column_values);
+        
         $query->execute();
 
         
@@ -55,6 +62,7 @@ abstract class Model{
 
     public static function update(mysqli $mysqli,array $values, int $id){
         $column_values = array_values($values);
+        
         $column_names = array_keys($values);
         $valuesToBind = [];
         foreach($column_names as $key){
@@ -66,7 +74,6 @@ abstract class Model{
         $bindingDatatypes = static::prepareForBinding($column_values);
         $bindingDatatypes .= "i";
         $valuesToBind[] = $id;
-        
         $query->bind_param($bindingDatatypes, ...$column_values);
         $query->execute();
     }
